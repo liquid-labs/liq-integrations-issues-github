@@ -1,17 +1,32 @@
 {
-  "name": "@liquid-labs/liq-integration-github-project",
+  "name": "@liquid-labs/liq-integrations-issues-github",
   "version": "1.0.0-alpha.0",
   "description": "",
-  "main": "dist/liq-integration-github-project.js",
+  "main": "dist/liq-integrations-issues-github.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "make",
+    "lint": "make lint",
+    "lint:fix": "make lint-fix",
+    "test": "make test",
+    "prepack": "make build",
+    "preversion": "make test && make lint",
+    "qa": "make qa"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
   "license": "UNLICENSED",
-  "repository": "git+ssh://git@github.com/liquid-labs/liq-integration-github-project.git",
-  "bugs": {
-    "url": "https://github.com/liquid-labs/liq-integration-github-project/issues"
+  "repository": {
+    "url": "git+ssh://git@github.com/liquid-labs/liq-integrations-issues-github.git",
+    "type": "git"
   },
-  "homepage": "https://github.com/liquid-labs/liq-integration-github-project#readme"
+  "bugs": {
+    "url": "https://github.com/liquid-labs/liq-integrations-issues-github/issues"
+  },
+  "homepage": "https://github.com/liquid-labs/liq-integrations-issues-github#readme",
+  "devDependencies": {
+    "@liquid-labs/catalyst-scripts-node-project": "^1.0.0-alpha.21"
+  }
 }
