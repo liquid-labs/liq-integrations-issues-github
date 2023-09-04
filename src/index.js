@@ -7,8 +7,8 @@ const name = 'issues/github'
 const registerIntegrationPlugins = ({ app }) => {
   console.log('registering...') // DEBUG
   app.ext.integrations.register({
-    hooks        : {
-      'getCurrentIntegrationUser' : async ({ app }) => {
+    hooks : {
+      getCurrentIntegrationUser : async({ app }) => {
         const credDB = app.ext.credentialsDB
         const authToken = credDB.getToken('GITHUB_API')
 
