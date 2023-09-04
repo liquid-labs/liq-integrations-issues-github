@@ -1,0 +1,27 @@
+Test git rev: 81f41deda033720c29869963dbab88967cd35127
+  console.log
+    bugsURL: https://github.com/foo/bar/issues
+
+      at log (../src/uses-github-issues.mjs:5:11)
+
+  console.log
+    bugsURL: https://jira.com/foo/bar/issues
+
+      at log (../src/uses-github-issues.mjs:5:11)
+
+PASS test/uses-github-issues.test.js
+  usesGitHubIssues
+    ✓ is true with github issues URL (13 ms)
+    ✓ is false with github issues URL (1 ms)
+
+------------------------|---------|----------|---------|---------|-------------------
+File                    | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+------------------------|---------|----------|---------|---------|-------------------
+All files               |     100 |    66.66 |     100 |     100 |                   
+ uses-github-issues.mjs |     100 |    66.66 |     100 |     100 | 2-3               
+------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        0.218 s, estimated 1 s
+Ran all test suites.
