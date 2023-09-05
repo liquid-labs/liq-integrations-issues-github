@@ -1,22 +1,34 @@
-import { determineGitHubLogin } from '@liquid-labs/github-toolkit'
-
-import { usesGitHubIssues } from 'uses-github-issues'
+import { createOrUpdatePullRequest } from './create-or-update-pull-request'
+import { getCurrentIntegrationUser } from './get-current-integration-user'
+import { getIssueURL } from './get-issue-url'
+import { getProjectURL } from './get-project-url'
+import { getPullRequestURLsByHead } from './get-pull-request-urls-by-head'
+import { getQALinkFileIndex } from './get-qa-link-file-index'
+import { usesGitHubIssues } from './uses-github-issues'
 
 const name = 'issues/github'
 
 const registerIntegrationPlugins = ({ app }) => {
-  console.log('registering...') // DEBUG
   app.ext.integrations.register({
     hooks : {
-      getCurrentIntegrationUser : async({ app }) => {
-        const credDB = app.ext.credentialsDB
-        const authToken = credDB.getToken('GITHUB_API')
-
-        // determine assignee(s)
-        return (await determineGitHubLogin({ authToken })).login
-      }
+      getCurrentIntegrationUser,
+      getIssueURL,
+      getProjectURL
     },
     name,
+    npmName      : '@liquid-labs/liq-integrations-issues-github',
+    providerFor  : 'tickets',
+    providerTest : usesGitHubIssues
+  })
+
+  app.ext.integrations.register({
+    hooks : {
+      createOrUpdatePullRequest,
+      getCurrentIntegrationUser,
+      getPullRequestURLsByHead,
+      getQALinkFileIndex
+    },
+    name         : 'pull-requests/github',
     npmName      : '@liquid-labs/liq-integrations-issues-github',
     providerFor  : 'pull request',
     providerTest : usesGitHubIssues
