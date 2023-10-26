@@ -1,5 +1,5 @@
 import { determineOriginAndMain } from '@liquid-labs/git-toolkit'
-import { determineGitHubLogin } from '@liquid-labs/github-toolkit'
+import { determineGitHubLogin, getGitHubOrgAndProjectBasename } from '@liquid-labs/github-toolkit'
 import { determineCurrentMilestone } from '@liquid-labs/liq-projects-lib'
 import { getGitHubQAFileLinks } from '@liquid-labs/liq-qa-lib'
 import { Octocache } from '@liquid-labs/octocache'
@@ -14,23 +14,22 @@ const createOrUpdatePullRequest = async({
   closes,
   closeTarget,
   isPrivate,
-  org,
-  project,
+  projectBasename,
   qaFiles,
   prBody,
   projectFQN,
   projectPath,
-  projects,
   reporter,
   workKey,
   workUnit
 }) => {
-  const gitHubOrg = org.requireSetting('github.ORG_NAME')
+  const { pkgJSON } = app.ext._liqProjects.playgroundMonitor.getProjectData(projectFQN)
+  const { org: gitHubOrg } = getGitHubOrgAndProjectBasename({ packageJSON : pkgJSON })
 
   const qaFileLinkIndex = await getGitHubQAFileLinks({ gitHubOrg, projectPath, reporter, qaFiles })
 
   const credDB = app.ext.credentialsDB
-  const authToken = credDB.getToken('GITHUB_API')
+  const authToken = await credDB.getToken('GITHUB_API')
 
   const octocache = new Octocache({ authToken })
 
@@ -44,7 +43,7 @@ const createOrUpdatePullRequest = async({
   }
 
   const prURLs = []
-  const openPRs = await octocache.paginate(`GET /repos/${gitHubOrg}/${project}/pulls`, { head, state : 'open' })
+  const openPRs = await octocache.paginate(`GET /repos/${gitHubOrg}/${projectBasename}/pulls`, { head, state : 'open' })
   if (openPRs.length > 0) { // really, should (and I think can) only be one, but this is the better question anyway
     reporter.push(`Project <em>${projectFQN}<rst> branch <code>${workKey}<rst> PR <bold>extant and open<rst>; pushing updates...`)
     let remote
@@ -59,11 +58,9 @@ const createOrUpdatePullRequest = async({
         closes,
         gitHubOrg,
         octocache,
-        org,
         prBody,
         prData,
         projectFQN,
-        projects,
         reporter,
         qaFileLinkIndex,
         workKey
@@ -85,10 +82,8 @@ const createOrUpdatePullRequest = async({
       gitHubOrg,
       head,
       octocache,
-      org,
       prBody,
       projectFQN,
-      projects,
       reporter,
       qaFileLinkIndex,
       workKey,
@@ -115,10 +110,8 @@ const createPR = async({ // TODO: this siganure is redonk; we really want an asy
   gitHubOrg,
   head,
   octocache,
-  org,
   prBody,
   projectFQN,
-  projects,
   reporter,
   qaFileLinkIndex,
   workKey,
@@ -127,11 +120,11 @@ const createPR = async({ // TODO: this siganure is redonk; we really want an asy
   reporter.push(`Creating PR for <em>${projectFQN}<rst> branch <code>${workKey}<rst>...`)
   // build up the PR body
 
-  const [, project] = projectFQN.split('/')
+  const [, projectBasename] = projectFQN.split('/')
 
-  const milestonePromise = determineCurrentMilestone({ app, cache, gitHubOrg, project })
+  const milestonePromise = determineCurrentMilestone({ app, cache, gitHubOrg, projectBasename })
 
-  const repoPromise = octocache.request(`GET /repos/${gitHubOrg}/${project}`)
+  const repoPromise = octocache.request(`GET /repos/${gitHubOrg}/${projectBasename}`)
 
   const [milestone, repoData] = await Promise.all([milestonePromise, repoPromise])
 
@@ -141,7 +134,7 @@ const createPR = async({ // TODO: this siganure is redonk; we really want an asy
     'POST /repos/{owner}/{repo}/pulls',
     {
       owner : gitHubOrg,
-      repo  : project,
+      repo  : projectBasename,
       title : workUnit.description,
       body  : prBody,
       head,
@@ -152,7 +145,7 @@ const createPR = async({ // TODO: this siganure is redonk; we really want an asy
     await octocache.request('PATCH /repos/{owner}/{repo}/issues/{issueNumber}',
       {
         owner       : gitHubOrg,
-        repo        : project,
+        repo        : projectBasename,
         issueNumber : prData.number,
         assignees,
         milestone
@@ -160,7 +153,7 @@ const createPR = async({ // TODO: this siganure is redonk; we really want an asy
 
     const collaboratorsData = await octocache.paginate('GET /repos/{owner}/{repo}/collaborators', {
       owner      : gitHubOrg,
-      repo       : project,
+      repo       : projectBasename,
       permission : 'triage'
     })
 
@@ -175,7 +168,7 @@ const createPR = async({ // TODO: this siganure is redonk; we really want an asy
 
       await octocache.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers', {
         owner       : gitHubOrg,
-        repo        : project,
+        repo        : projectBasename,
         pull_number : prData.number,
         reviewers
       })
@@ -183,10 +176,10 @@ const createPR = async({ // TODO: this siganure is redonk; we really want an asy
   }
   catch (e) { // we want to continue in the face of errors; as long as the PR was created, we will continue
     process.stderr.write(e.stack)
-    reporter.push(`<warn>There were problems completing the PR ${gitHubOrg}/${project}/${prData.number}.<rst> Assignees, milestone, and/or reviewers may not be set.`)
+    reporter.push(`<warn>There were problems completing the PR ${gitHubOrg}/${projectBasename}/${prData.number}.<rst> Assignees, milestone, and/or reviewers may not be set.`)
   }
 
-  return `${GH_BASE_URL}/${gitHubOrg}/${project}/pull/${prData.number}`
+  return `${GH_BASE_URL}/${gitHubOrg}/${projectBasename}/pull/${prData.number}`
 }
 
 /**
@@ -198,11 +191,9 @@ const updatePR = async({
   closeTarget,
   gitHubOrg,
   octocache,
-  org,
   prBody,
   prData,
   projectFQN,
-  projects,
   reporter,
   qaFileLinkIndex,
   workKey
@@ -210,22 +201,22 @@ const updatePR = async({
   reporter.push(`Updating PR <code>${prData.number}<rst> for <em>${projectFQN}<rst> branch <code>${workKey}<rst>...`)
   // build up the PR body
 
-  const [, project] = projectFQN.split('/')
+  const [, projectBasename] = projectFQN.split('/')
 
   try {
     await octocache.request('PATCH /repos/{owner}/{repo}/issues/{issueNumber}',
       {
         owner       : gitHubOrg,
-        repo        : project,
+        repo        : projectBasename,
         issueNumber : prData.number,
         body        : prBody
       })
   }
   catch (e) { // we want to continue in the face of errors; as long as the PR was created, we will continue
-    reporter.push(`<warn>There were problems updating the PR ${gitHubOrg}/${project}/${prData.number}.<rst> Try submitting again or update manually.`)
+    reporter.push(`<warn>There were problems updating the PR ${gitHubOrg}/${projectBasename}/${prData.number}.<rst> Try submitting again or update manually.`)
   }
 
-  return `${GH_BASE_URL}/${gitHubOrg}/${project}/pull/${prData.number}`
+  return `${GH_BASE_URL}/${gitHubOrg}/${projectBasename}/pull/${prData.number}`
 }
 
 export { createOrUpdatePullRequest }

@@ -1,7 +1,9 @@
+import { getGitHubOrgAndProjectBasename } from '@liquid-labs/github-toolkit'
 import { getGitHubQAFileLinks } from '@liquid-labs/liq-qa-lib'
 
-const getQALinkFileIndex = async({ org, projectPath, reporter }) => {
-  const gitHubOrg = org.requireSetting('github.ORG_NAME')
+const getQALinkFileIndex = async({ app, pkgJSON, projectPath, reporter }) => {
+  console.log('getQALinkFileIndex pkgJSON:', pkgJSON) // DEBUG
+  const { org: gitHubOrg } = getGitHubOrgAndProjectBasename({ packageJSON : pkgJSON })
 
   return await getGitHubQAFileLinks({ gitHubOrg, projectPath, reporter })
 }

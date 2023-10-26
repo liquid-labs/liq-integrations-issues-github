@@ -1,8 +1,6 @@
 import { GH_BASE_URL } from './constants'
 
-const getProjectURL = ({ org, project }) => {
-  const gitHubOrg = org.requireSetting('github.ORG_NAME')
-
+const getProjectURL = ({ gitHubOrg, project }) => {
   return `${GH_BASE_URL}/${gitHubOrg}/${project}`
 }
 
