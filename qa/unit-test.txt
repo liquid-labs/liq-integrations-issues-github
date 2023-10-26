@@ -1,0 +1,25 @@
+Test git rev: 3823d1a93fb4be74aa4f4e5f554d6636f6583472
+PASS test/uses-github-issues.test.js
+  usesGitHubIssues
+    ✓ is true with github issues URL (1 ms)
+    ✓ is false with github issues URL
+
+-----------------------------------|---------|----------|---------|---------|-------------------
+File                               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-----------------------------------|---------|----------|---------|---------|-------------------
+All files                          |     3.6 |    29.16 |    7.69 |    3.84 |                   
+ constants.mjs                     |       0 |      100 |     100 |       0 | 1-2               
+ create-or-update-pull-request.mjs |       0 |        0 |       0 |       0 | 1-219             
+ get-current-integration-user.mjs  |       0 |      100 |       0 |       0 | 1-9               
+ get-issue-url.mjs                 |       0 |      100 |       0 |       0 | 1-5               
+ get-project-url.mjs               |       0 |      100 |       0 |       0 | 1-5               
+ get-pull-request-urls-by-head.mjs |       0 |      100 |       0 |       0 | 1-5               
+ get-qa-link-file-index.mjs        |       0 |      100 |       0 |       0 | 1-9               
+ index.js                          |       0 |      100 |       0 |       0 | 1-38              
+ uses-github-issues.mjs            |     100 |       70 |     100 |     100 | 2                 
+-----------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        0.304 s, estimated 1 s
+Ran all test suites.
