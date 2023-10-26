@@ -31,8 +31,8 @@
   },
   "dependencies": {
     "@liquid-labs/git-toolkit": "^1.0.0-alpha.15",
-    "@liquid-labs/github-toolkit": "^1.0.0-alpha.12",
-    "@liquid-labs/liq-projects-lib": "^1.0.0-alpha.9",
+    "@liquid-labs/github-toolkit": "^1.0.0-alpha.16",
+    "@liquid-labs/liq-projects-lib": "^1.0.0-alpha.11",
     "@liquid-labs/liq-qa-lib": "^1.0.0-alpha.8",
     "@liquid-labs/shell-toolkit": "^1.0.0-alpha.7"
   }
