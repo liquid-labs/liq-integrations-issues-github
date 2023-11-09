@@ -14,11 +14,11 @@ const createOrUpdatePullRequest = async({
   closes,
   closeTarget,
   isPrivate,
-  projectBasename,
-  qaFiles,
   prBody,
+  projectBasename,
   projectFQN,
   projectPath,
+  qaFiles,
   reporter,
   workKey,
   workUnit
@@ -60,6 +60,7 @@ const createOrUpdatePullRequest = async({
         octocache,
         prBody,
         prData,
+        projectBasename,
         projectFQN,
         reporter,
         qaFileLinkIndex,
@@ -83,6 +84,7 @@ const createOrUpdatePullRequest = async({
       head,
       octocache,
       prBody,
+      projectBasename,
       projectFQN,
       reporter,
       qaFileLinkIndex,
@@ -111,6 +113,7 @@ const createPR = async({ // TODO: this siganure is redonk; we really want an asy
   head,
   octocache,
   prBody,
+  projectBasename,
   projectFQN,
   reporter,
   qaFileLinkIndex,
@@ -119,8 +122,6 @@ const createPR = async({ // TODO: this siganure is redonk; we really want an asy
 }) => {
   reporter.push(`Creating PR for <em>${projectFQN}<rst> branch <code>${workKey}<rst>...`)
   // build up the PR body
-
-  const [, projectBasename] = projectFQN.split('/')
 
   const milestonePromise = determineCurrentMilestone({ app, cache, gitHubOrg, projectBasename })
 
@@ -193,6 +194,7 @@ const updatePR = async({
   octocache,
   prBody,
   prData,
+  projectBasename,
   projectFQN,
   reporter,
   qaFileLinkIndex,
@@ -200,8 +202,6 @@ const updatePR = async({
 }) => {
   reporter.push(`Updating PR <code>${prData.number}<rst> for <em>${projectFQN}<rst> branch <code>${workKey}<rst>...`)
   // build up the PR body
-
-  const [, projectBasename] = projectFQN.split('/')
 
   try {
     await octocache.request('PATCH /repos/{owner}/{repo}/issues/{issueNumber}',
