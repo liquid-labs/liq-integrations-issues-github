@@ -6,35 +6,35 @@ import { getPullRequestURLsByHead } from './get-pull-request-urls-by-head'
 import { getQALinkFileIndex } from './get-qa-link-file-index'
 import { usesGitHubIssues } from './uses-github-issues'
 
-const name = 'issues/github'
+const setup = async({ app, reporter }) => {
+  app.ext.setupMethods.push({
+    name : 'register github issues integrations',
+    deps : ['setup integrations'],
+    func : async({ app, reporter }) => {
+      app.ext.integrations.register({
+        hooks : {
+          getCurrentIntegrationUser,
+          getIssueURL,
+          getProjectURL
+        },
+        npmName      : '@liquid-labs/liq-integrations-issues-github',
+        providerFor  : 'tickets',
+        providerTest : usesGitHubIssues
+      })
 
-const registerIntegrationPlugins = ({ app }) => {
-  app.ext.integrations.register({
-    hooks : {
-      getCurrentIntegrationUser,
-      getIssueURL,
-      getProjectURL
-    },
-    name,
-    npmName      : '@liquid-labs/liq-integrations-issues-github',
-    providerFor  : 'tickets',
-    providerTest : usesGitHubIssues
-  })
-
-  app.ext.integrations.register({
-    hooks : {
-      createOrUpdatePullRequest,
-      getCurrentIntegrationUser,
-      getPullRequestURLsByHead,
-      getQALinkFileIndex
-    },
-    name         : 'pull-requests/github',
-    npmName      : '@liquid-labs/liq-integrations-issues-github',
-    providerFor  : 'pull request',
-    providerTest : usesGitHubIssues
+      app.ext.integrations.register({
+        hooks : {
+          createOrUpdatePullRequest,
+          getCurrentIntegrationUser,
+          getPullRequestURLsByHead,
+          getQALinkFileIndex
+        },
+        npmName      : '@liquid-labs/liq-integrations-issues-github',
+        providerFor  : 'pull request',
+        providerTest : usesGitHubIssues
+      })
+    }
   })
 }
 
-const summary = 'Plugin hooks for GitHub provider issues and pull requests'
-
-export { name, registerIntegrationPlugins, summary }
+export { setup }
