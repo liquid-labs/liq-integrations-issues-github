@@ -23,8 +23,8 @@ const createOrUpdatePullRequest = async({
   workKey,
   workUnit
 }) => {
-  const { pkgJSON } = app.ext._liqProjects.playgroundMonitor.getProjectData(projectFQN)
-  const { org: gitHubOrg } = getGitHubOrgAndProjectBasename({ packageJSON : pkgJSON })
+  const { packageJSON } = await app.ext._liqProjects.playgroundMonitor.getProjectData(projectFQN)
+  const { org: gitHubOrg } = getGitHubOrgAndProjectBasename({ packageJSON })
 
   const qaFileLinkIndex = await getGitHubQAFileLinks({ gitHubOrg, projectPath, reporter, qaFiles })
 
